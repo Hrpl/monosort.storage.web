@@ -1,0 +1,18 @@
+version: '3.8'
+
+networks:
+  mono:
+   external: true
+   name: mono
+
+services:
+  angular-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: angular-frontend
+    ports:
+      - "4000:4000"
+    restart: unless-stopped
+    networks:
+      - mono

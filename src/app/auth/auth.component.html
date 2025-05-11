@@ -1,0 +1,30 @@
+<div class="auth-container">
+  <h2>Вход в систему</h2>
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label>Email</label>
+      <input
+        type="email"
+        formControlName="email"
+        placeholder="Введите email"
+      >
+      <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="error">
+        Введите корректный email
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Пароль</label>
+      <input
+        type="password"
+        formControlName="password"
+        placeholder="Введите пароль"
+      >
+      <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error">
+        Пароль должен быть не менее 6 символов
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="loginForm.invalid" onclick="OnSumbit">Войти</button>
+  </form>
+</div>
