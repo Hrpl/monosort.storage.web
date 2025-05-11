@@ -12,8 +12,8 @@ RUN npm ci
 # Копируем остальные файлы
 COPY . .
 
-# Открываем порт 4000
-EXPOSE 4000
+# Открываем порт 4200
+EXPOSE 4200
 
 # Собираем приложение
 RUN npm run build -- --configuration=production
