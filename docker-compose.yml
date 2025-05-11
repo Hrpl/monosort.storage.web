@@ -14,5 +14,6 @@ services:
     ports:
       - "4000:4000"
     restart: unless-stopped
+    command: npm start
     networks:
       - mono
