@@ -9,7 +9,6 @@ interface Supply {
 }
 
 interface SupplyItem {
-  id: number;
   count: number;
   name?: string;
 }

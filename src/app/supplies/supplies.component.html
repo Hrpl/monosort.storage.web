@@ -22,7 +22,7 @@
       <h3>Товары в поставке #{{ selectedSupplyId }}</h3>
       <div class="supply-items-container">
         <div class="supply-item-detail" *ngFor="let item of supplyDetails">
-          <div class="item-id">Товар #{{ item.id }}</div>
+          <div class="item-id">{{ item.name }}</div>
           <div class="item-count">{{ item.count }} шт.</div>
         </div>
       </div>
