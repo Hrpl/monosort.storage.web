@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { provideHttpClient, withFetch } from '@angular/common/http';
 
 interface Product {
@@ -20,20 +21,40 @@ interface NewProduct {
   measure: string;
 }
 
+interface ProductShort {
+  id: number;
+  name: string;
+}
+
+interface SupplyProduct {
+  count: number;
+  supplyId: number;
+  productId: number;
+}
+
+interface NewSupply {
+  date: string;
+  supplyProduct: SupplyProduct[];
+}
+
 @Component({
   standalone: true,
   selector: 'app-product-management',
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.css'],
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
 })
 export class ProductsComponent implements OnInit {
   products: Product[] = [];
+  availableProducts: ProductShort[] = [];
   isLoading = true;
   showDeleteModal = false;
   showAddModal = false;
+  showSupplyModal = false;
+  showAddProductToSupplyModal = false;
   productIdToDelete: number | null = null;
   errorMessage = '';
+
   newProduct: NewProduct = {
     provider_id: 1,
     name: '',
@@ -41,6 +62,15 @@ export class ProductsComponent implements OnInit {
     last_order: new Date().toISOString().split('T')[0],
     measure: ''
   };
+
+  newSupply: NewSupply = {
+    date: new Date().toISOString().split('T')[0],
+    supplyProduct: []
+  };
+
+  supplyProducts: SupplyProduct[] = [];
+  selectedProductId: number | null = null;
+  selectedProductCount: number = 1;
 
   constructor(private http: HttpClient) {}
 
@@ -137,5 +167,115 @@ export class ProductsComponent implements OnInit {
   createSupply(): void {
     // Логика создания поставки
     console.log('Создание новой поставки');
+  }
+
+  openSupplyModal(): void {
+    this.showSupplyModal = true;
+    this.newSupply = {
+      date: new Date().toISOString().split('T')[0],
+      supplyProduct: []
+    };
+    this.supplyProducts = [];
+    this.loadAvailableProducts();
+  }
+
+  cancelSupply(): void {
+    this.showSupplyModal = false;
+  }
+
+  loadAvailableProducts(): void {
+    this.http.get<ProductShort[]>('https://storage.monosortcoffee.ru/api/product/short_data')
+      .subscribe({
+        next: (products) => {
+          this.availableProducts = products;
+          console.log(products)
+        },
+        error: (error) => {
+          console.error('Ошибка при загрузке списка товаров:', error);
+          this.errorMessage = 'Не удалось загрузить список товаров';
+        }
+      });
+  }
+
+  openAddProductToSupplyModal(): void {
+    this.showAddProductToSupplyModal = true;
+    this.selectedProductId = null;
+    this.selectedProductCount = 1;
+  }
+
+  cancelAddProductToSupply(): void {
+    this.showAddProductToSupplyModal = false;
+  }
+
+  addProductToSupply(): void {
+    if (!this.selectedProductId || !this.selectedProductCount) return;
+
+    const existingProductIndex = this.supplyProducts.findIndex(
+      item => item.productId === this.selectedProductId
+    );
+
+    if (existingProductIndex >= 0) {
+      // Обновляем количество, если товар уже добавлен
+      this.supplyProducts[existingProductIndex].count += this.selectedProductCount;
+    } else {
+      // Добавляем новый товар
+      this.supplyProducts.push({
+        productId: this.selectedProductId!,
+        count: this.selectedProductCount,
+        supplyId: 0 // Временное значение, будет обновлено при создании поставки
+      });
+    }
+
+    this.showAddProductToSupplyModal = false;
+  }
+
+  removeSupplyProduct(productId: number): void {
+    this.supplyProducts = this.supplyProducts.filter(
+      item => item.productId !== productId
+    );
+  }
+
+  getProductName(productId: number): string {
+    const product = this.availableProducts.find(p => p.id == productId);
+    console.log(product?.name);
+    return product ? product.name : 'Неизвестный товар';
+  }
+
+  getProductMeasure(productId: number): string {
+    const product = this.products.find(p => p.id === productId);
+    return product ? product.measure : '';
+  }
+
+  createSupplySubmit(): void {
+    if (this.supplyProducts.length === 0) return;
+
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    const supplyData = {
+      date: this.newSupply.date,
+      supplyProduct: this.supplyProducts.map(item => ({
+        count: item.count,
+        productId: item.productId
+      }))
+    };
+
+    this.http.post('https://storage.monosortcoffee.ru/api/supply', supplyData, { observe: 'response' })
+      .subscribe({
+        next: (response) => {
+          if (response.status === 201) {
+            this.showSupplyModal = false;
+            this.fetchProducts(); // Обновляем список товаров
+          } else {
+            this.errorMessage = 'Не удалось создать поставку';
+          }
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Ошибка при создании поставки:', error);
+          this.errorMessage = 'Не удалось создать поставку';
+          this.isLoading = false;
+        }
+      });
   }
 }

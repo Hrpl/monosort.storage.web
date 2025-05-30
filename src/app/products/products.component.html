@@ -1,3 +1,55 @@
+<!-- Модальное окно создания поставки -->
+<div class="modal" *ngIf="showSupplyModal">
+  <div class="modal-content">
+    <h3>Создание поставки</h3>
+
+    <div class="supply-products-list" *ngIf="supplyProducts.length > 0">
+      <h4>Добавленные товары:</h4>
+      <ul>
+        <li *ngFor="let item of supplyProducts">
+          {{ getProductName(item.productId) }} - {{ item.count }} {{ getProductMeasure(item.productId) }}
+          <button (click)="removeSupplyProduct(item.productId)" class="btn-delete small">Удалить</button>
+        </li>
+      </ul>
+    </div>
+
+    <div class="form-group">
+      <label for="supplyDate">Дата поставки:</label>
+      <input type="date" id="supplyDate" [(ngModel)]="newSupply.date" required>
+    </div>
+
+    <div class="modal-actions">
+      <button (click)="openAddProductToSupplyModal()" class="btn-confirm">Добавить товар</button>
+      <button (click)="createSupplySubmit()" class="btn-confirm" [disabled]="supplyProducts.length === 0">Создать поставку</button>
+      <button (click)="cancelSupply()" class="btn-cancel">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно добавления товара в поставку -->
+<div class="modal" *ngIf="showAddProductToSupplyModal">
+  <div class="modal-content">
+    <h3>Добавить товар в поставку</h3>
+
+    <div class="form-group">
+      <label for="productSelect">Товар:</label>
+      <select id="productSelect" [(ngModel)]="selectedProductId" required>
+        <option *ngFor="let product of availableProducts" [value]="product.id">{{ product.name }}</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="productCount">Количество:</label>
+      <input type="number" id="productCount" [(ngModel)]="selectedProductCount" min="1" required>
+    </div>
+
+    <div class="modal-actions">
+      <button (click)="addProductToSupply()" class="btn-confirm" [disabled]="!selectedProductId || !selectedProductCount">Добавить</button>
+      <button (click)="cancelAddProductToSupply()" class="btn-cancel">Отмена</button>
+    </div>
+  </div>
+</div>
+
 <!-- Модальное окно подтверждения удаления -->
 <div class="modal" *ngIf="showDeleteModal">
   <div class="modal-content">
@@ -44,7 +96,8 @@
     <h2>Управление товарами</h2>
     <div class="actions">
       <button class="btn btn-add" (click)="openAddModal()">Добавить товар</button>
-      <button class="btn btn-supply" (click)="createSupply()">Создать поставку</button>
+      <button class="btn btn-supply" (click)="openSupplyModal()">Создать поставку</button>
+      <a routerLink="/supplies" class="btn btn-view-supplies">Просмотр поставок</a>
     </div>
   </div>
 

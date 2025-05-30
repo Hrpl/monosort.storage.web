@@ -1,0 +1,31 @@
+<div class="supplies-container">
+  <h2>Список поставок</h2>
+
+  <div class="actions">
+    <a routerLink="/products" class="btn btn-back">Назад к товарам</a>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">Загрузка данных...</div>
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+  <div class="supplies-content">
+    <div class="supplies-list">
+      <div class="supply-item"
+           *ngFor="let supply of supplies"
+           (click)="loadSupplyDetails(supply.id)"
+           [class.active]="selectedSupplyId === supply.id">
+        <span>Поставка #{{ supply.id }} от {{ supply.date | date:'dd.MM.yyyy' }}</span>
+      </div>
+    </div>
+
+    <div class="supply-details" *ngIf="selectedSupplyId && supplyDetails.length > 0">
+      <h3>Товары в поставке #{{ selectedSupplyId }}</h3>
+      <div class="supply-items-container">
+        <div class="supply-item-detail" *ngFor="let item of supplyDetails">
+          <div class="item-id">Товар #{{ item.id }}</div>
+          <div class="item-count">{{ item.count }} шт.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

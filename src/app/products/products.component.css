@@ -99,6 +99,7 @@
 }
 
 .modal {
+  font-family: Arial, sans-serif;
   position: fixed;
   top: 0;
   left: 0;
@@ -237,4 +238,50 @@
 .btn-supply {
   background-color: #007bff;
   color: white;
+}
+
+.supply-products-list {
+  margin-bottom: 20px;
+}
+
+.supply-products-list ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 10px 0;
+}
+
+.supply-products-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.btn-delete.small {
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+/* Улучшение для select */
+select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+}
+.btn-view-supplies {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #6c757d;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-view-supplies:hover {
+  background-color: #5a6268;
 }
