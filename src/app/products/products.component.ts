@@ -93,7 +93,66 @@ export class ProductsComponent implements OnInit {
   selectedProductCount: number = 1;
 
   constructor(private http: HttpClient) {}
+// В класс ProductsComponent добавим метод для списания товара
+writeOffProduct(productId: number, quantity: number): void {
+  if (!productId || quantity <= 0) return;
 
+  this.isLoading = true;
+  this.errorMessage = '';
+
+  this.http.patch(
+    `https://storage.monosortcoffee.ru/api/product?id=${productId}&quantity=${quantity}`,
+    null,
+    { observe: 'response' }
+  ).subscribe({
+    next: (response) => {
+      if (response.status === 200) {
+        // Обновляем данные после успешного списания
+        this.fetchProducts();
+      } else {
+        this.errorMessage = 'Не удалось списать товар';
+      }
+      this.isLoading = false;
+    },
+    error: (error) => {
+      console.error('Ошибка при списании товара:', error);
+      this.errorMessage = 'Не удалось списать товар';
+      this.isLoading = false;
+    }
+  });
+}
+
+// Добавим метод для открытия модального окна списания
+showWriteOffModal = false;
+productToWriteOff: {id: number | null, name: string, quantity: number} = {
+  id: null,
+  name: '',
+  quantity: 1
+};
+
+getProductMaxQuantity(productId: number | null): number {
+  if (!productId) return 0;
+  const product = this.products.find(p => p.id === productId);
+  return product ? product.count_in_storage : 0;
+}
+
+openWriteOffModal(product: Product): void {
+  this.productToWriteOff = {
+    id: product.id,
+    name: product.name,
+    quantity: 1
+  };
+  this.showWriteOffModal = true;
+}
+
+closeWriteOffModal(): void {
+  this.showWriteOffModal = false;
+  this.productToWriteOff = {
+    id: null,
+    name: '',
+    quantity: 1
+  };
+}
   ngOnInit(): void {
     this.fetchProducts();
   }

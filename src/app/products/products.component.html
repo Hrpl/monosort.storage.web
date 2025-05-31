@@ -150,10 +150,39 @@
           <td>{{ product.last_order | date }}</td>
           <td>{{ product.measure }}</td>
           <td>
+            <button (click)="openWriteOffModal(product)" class="btn-writeoff">Списать</button>
             <button (click)="openDeleteModal(product.id)" class="btn-delete">Удалить</button>
           </td>
         </tr>
       </tbody>
     </table>
+  </div>
+</div>
+
+<!-- Модальное окно списания товара -->
+<div class="modal" *ngIf="showWriteOffModal">
+  <div class="modal-content">
+    <h3>Списание товара</h3>
+
+    <div class="form-group">
+      <p>Товар: <strong>{{productToWriteOff.name}}</strong></p>
+    </div>
+
+    <div class="form-group">
+      <label for="writeOffQuantity">Количество для списания:</label>
+      <input type="number" id="writeOffQuantity"
+             [(ngModel)]="productToWriteOff.quantity"
+             min="1" [max]="getProductMaxQuantity(productToWriteOff.id)" required>
+      <small *ngIf="productToWriteOff.id">Доступно: {{getProductMaxQuantity(productToWriteOff.id)}}</small>
+    </div>
+
+    <div class="modal-actions">
+      <button (click)="writeOffProduct(productToWriteOff.id!, productToWriteOff.quantity)"
+              class="btn-confirm"
+              [disabled]="!productToWriteOff.id || productToWriteOff.quantity <= 0">
+        Списать
+      </button>
+      <button (click)="closeWriteOffModal()" class="btn-cancel">Отмена</button>
+    </div>
   </div>
 </div>

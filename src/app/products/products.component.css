@@ -346,6 +346,25 @@ select {
   background-color: #138496;
 }
 
+.btn-writeoff {
+  background-color: #ffc107;
+  color: #212529;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.btn-writeoff:hover {
+  background-color: #e0a800;
+}
+
+/* Обновим стили для кнопок действий, чтобы они не переносились */
+.product-table td {
+  white-space: nowrap;
+}
+
 /* Адаптивность для фильтров */
 @media (max-width: 768px) {
   .filters-section {
