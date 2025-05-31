@@ -37,6 +37,12 @@ interface NewSupply {
   supplyProduct: SupplyProduct[];
 }
 
+interface FilterParams {
+  search: string;
+  sortBy: string;
+  sortOrder: 'ASC' | 'DESC';
+}
+
 @Component({
   standalone: true,
   selector: 'app-product-management',
@@ -54,6 +60,20 @@ export class ProductsComponent implements OnInit {
   showAddProductToSupplyModal = false;
   productIdToDelete: number | null = null;
   errorMessage = '';
+
+  // Фильтры и сортировка
+  filterParams: FilterParams = {
+    search: '',
+    sortBy: 'name',
+    sortOrder: 'ASC'
+  };
+
+  // Доступные поля для сортировки
+  sortFields = [
+    { value: 'name', label: 'Название' },
+    { value: 'count_in_storage', label: 'Количество' },
+    { value: 'last_order', label: 'Дата последнего заказа' }
+  ];
 
   newProduct: NewProduct = {
     provider_id: 1,
@@ -83,7 +103,12 @@ export class ProductsComponent implements OnInit {
     this.errorMessage = '';
 
     try {
-      this.products = await this.http.get<Product[]>('https://storage.monosortcoffee.ru/api/product').toPromise() || [];
+      const response = await this.http.post<Product[]>(
+        'https://storage.monosortcoffee.ru/api/product/find',
+        this.filterParams
+      ).toPromise();
+
+      this.products = response || [];
     } catch (error) {
       console.error('Ошибка при получении продуктов:', error);
       this.errorMessage = 'Не удалось загрузить список продуктов';
@@ -92,6 +117,28 @@ export class ProductsComponent implements OnInit {
     }
   }
 
+  // Применение фильтров
+  applyFilters(): void {
+    this.fetchProducts();
+  }
+
+  // Сброс фильтров
+  resetFilters(): void {
+    this.filterParams = {
+      search: '',
+      sortBy: 'name',
+      sortOrder: 'ASC'
+    };
+    this.fetchProducts();
+  }
+
+  // Изменение порядка сортировки
+  toggleSortOrder(): void {
+    this.filterParams.sortOrder = this.filterParams.sortOrder === 'ASC' ? 'DESC' : 'ASC';
+    this.fetchProducts();
+  }
+
+  // Остальные методы остаются без изменений
   openDeleteModal(id: number): void {
     this.productIdToDelete = id;
     this.showDeleteModal = true;
@@ -126,7 +173,6 @@ export class ProductsComponent implements OnInit {
 
   openAddModal(): void {
     this.showAddModal = true;
-    // Сброс формы
     this.newProduct = {
       provider_id: 1,
       name: '',
@@ -148,7 +194,6 @@ export class ProductsComponent implements OnInit {
       .subscribe({
         next: (response) => {
           if (response.status === 201) {
-            // Обновляем список товаров после успешного добавления
             this.fetchProducts();
             this.showAddModal = false;
           } else {
@@ -165,7 +210,6 @@ export class ProductsComponent implements OnInit {
   }
 
   createSupply(): void {
-    // Логика создания поставки
     console.log('Создание новой поставки');
   }
 
@@ -188,7 +232,6 @@ export class ProductsComponent implements OnInit {
       .subscribe({
         next: (products) => {
           this.availableProducts = products;
-          console.log(products)
         },
         error: (error) => {
           console.error('Ошибка при загрузке списка товаров:', error);
@@ -215,14 +258,12 @@ export class ProductsComponent implements OnInit {
     );
 
     if (existingProductIndex >= 0) {
-      // Обновляем количество, если товар уже добавлен
       this.supplyProducts[existingProductIndex].count += this.selectedProductCount;
     } else {
-      // Добавляем новый товар
       this.supplyProducts.push({
         productId: this.selectedProductId!,
         count: this.selectedProductCount,
-        supplyId: 0 // Временное значение, будет обновлено при создании поставки
+        supplyId: 0
       });
     }
 
@@ -237,7 +278,6 @@ export class ProductsComponent implements OnInit {
 
   getProductName(productId: number): string {
     const product = this.availableProducts.find(p => p.id == productId);
-    console.log(product?.name);
     return product ? product.name : 'Неизвестный товар';
   }
 
@@ -265,7 +305,7 @@ export class ProductsComponent implements OnInit {
         next: (response) => {
           if (response.status === 201) {
             this.showSupplyModal = false;
-            this.fetchProducts(); // Обновляем список товаров
+            this.fetchProducts();
           } else {
             this.errorMessage = 'Не удалось создать поставку';
           }

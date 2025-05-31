@@ -101,6 +101,34 @@
     </div>
   </div>
 
+  <!-- Фильтры и сортировка -->
+  <div class="filters-section">
+    <div class="filter-group">
+      <label for="search">Поиск:</label>
+      <input type="text" id="search" [(ngModel)]="filterParams.search"
+             (keyup.enter)="applyFilters()" placeholder="Введите название товара">
+    </div>
+
+    <div class="filter-group">
+      <label for="sortBy">Сортировать по:</label>
+      <select id="sortBy" [(ngModel)]="filterParams.sortBy" (change)="applyFilters()">
+        <option *ngFor="let field of sortFields" [value]="field.value">{{field.label}}</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Порядок сортировки:</label>
+      <button (click)="toggleSortOrder()" class="btn-sort">
+        {{filterParams.sortOrder === 'ASC' ? 'По возрастанию' : 'По убыванию'}}
+      </button>
+    </div>
+
+    <div class="filter-actions">
+      <button (click)="applyFilters()" class="btn btn-apply">Применить</button>
+      <button (click)="resetFilters()" class="btn btn-reset">Сбросить</button>
+    </div>
+  </div>
+
   <div *ngIf="isLoading" class="loading">Загрузка данных...</div>
   <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
 
