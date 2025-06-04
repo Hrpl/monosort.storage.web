@@ -1,15 +1,17 @@
 # Stage 1: BuildAdd commentMore actions
 FROM node:18-alpine AS builder
-WORKDIR /appAdd commentMore actions
-
+WORKDIR /app
 # Копируем package.json отдельно для кэширования
-COPY package.json package-lock.json ./
+COPY package*.json ./
 # Устанавливаем зависимостиAdd commentMore actions
-RUN npm ci
+RUN npm install
 
 # Копируем остальные файлы
 COPY . .
 EXPOSE 4200
 
-# Собираем приложениеAdd commentMore actions
-RUN npm run build -- --configuration=production
+RUN npm run build
+# Открыть порт 4200
+EXPOSE 4200
+# Установить команду для запуска приложения Angular при запуске контейнера
+CMD ["ng", "serve", "--host=0.0.0.0"]
